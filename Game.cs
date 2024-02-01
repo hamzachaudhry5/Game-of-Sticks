@@ -1,110 +1,96 @@
-﻿using System;
+using System;
 
-class Player
-{
-    public string Name { get; } // attribute
-
-    public Player(string name)
-    {
-        Name = name;
-    }
-
-    public virtual int TakeSticks(int sticksOnTable) // Method for taking sticks
-    {
-        int sticksTaken;
-
-        Console.Write($"{Name}: How many sticks do you take (1-3)? ");
-
-        while (!int.TryParse(Console.ReadLine(), out sticksTaken) || sticksTaken < 1 || sticksTaken > 3)
-        {
-            Console.WriteLine("Please enter a valid number between 1 and 3.");
-            Console.Write($"{Name}: How many sticks do you take (1-3)? ");
-        }
-
-        return sticksTaken;
-    }
-}
-
-class AI : Player
-{
-    private Random random;
-
-    public AI(string name) : base(name)
-    {
-        random = new Random();
-    }
-
-    public override int TakeSticks(int sticksOnTable)
-    {
-        // AI logic to select the number of sticks to take
-        int sticksTaken = random.Next(1, 4);
-
-        Console.WriteLine($"{Name} selects {sticksTaken}.");
-
-        return sticksTaken;
-    }
-}
-
-class Program
+class GameOfSticks
 {
     static void Main()
     {
-        Console.WriteLine("Welcome to the game of sticks!");
+        Console.WriteLine("Welcome to the Game of Sticks!");
 
-        do
+        int totalNumberSticks = 10;
+        int numberOfTurns = 1;
+
+        while (totalNumberSticks > 0)
         {
-            Console.Write("How many sticks are there on the table initially (10-100)? ");
-            int sticksOnTable;
-            while (!int.TryParse(Console.ReadLine(), out sticksOnTable) || sticksOnTable < 10 || sticksOnTable > 100)
+            Console.Clear();
+            Console.WriteLine($"\nThere are {totalNumberSticks} sticks on the board.\n");
+
+            if (DetermineTurn(numberOfTurns))
             {
-                Console.WriteLine("Please enter a valid number between 10 and 100.");
-                Console.Write("How many sticks are there on the table initially (10-100)? ");
+                Console.WriteLine("\nPlayer 1's turn:\n");
+                totalNumberSticks -= UserPicksSticks();
+            }
+            else
+            {
+                Console.WriteLine("\nComputer's turn:\n");
+                int aiSticks = AiPicksSticks(totalNumberSticks);
+                totalNumberSticks -= aiSticks;
+                Console.WriteLine($"AI picked {aiSticks} stick(s).");
             }
 
-            Console.WriteLine("Options:");
-            Console.WriteLine("  1. Play against a friend");
-            Console.WriteLine("  2. Play against the computer");
+            numberOfTurns++;
+        }
 
-            int option;
-            while (!int.TryParse(Console.ReadLine(), out option) || (option != 1 && option != 2))
+        Console.WriteLine(DetermineTurn(numberOfTurns) ? "\nPlayer 1 wins!\n" : "\nComputer wins!\n");
+        PlayAgain();
+    }
+
+    static bool DetermineTurn(int numberOfTurns)
+    {
+        return numberOfTurns % 2 == 1; // If turn number is odd, it's player's turn; otherwise, it's AI's turn.
+    }
+
+    static int UserPicksSticks()
+    {
+        while (true)
+        {
+            Console.Write("How many sticks do you pick up (1-3)? ");
+            if (int.TryParse(Console.ReadLine(), out int numSticks) && numSticks >= 1 && numSticks <= 3)
             {
-                Console.WriteLine("Please enter a valid option (1 or 2).");
-                Console.Write("Which option do you take (1-2)? ");
+                return numSticks;
             }
-
-            Player player1 = new Player("Player 1");
-            Player player2 = (option == 1) ? new Player("Player 2") : new AI("AI");
-
-            do
+            else
             {
-                Console.WriteLine($"There are {sticksOnTable} sticks on the board.");
+                Console.WriteLine("Invalid input. Please enter a number between 1 and 3.");
+            }
+        }
+    }
 
-                // Player 1's turn
-                int sticksTakenByPlayer1 = player1.TakeSticks(sticksOnTable);
-                sticksOnTable -= sticksTakenByPlayer1;
+    static int AiPicksSticks(int totalNumberSticks)
+    {
+        if (totalNumberSticks > 3)
+        {
+            Random random = new Random();
+            return random.Next(1, 4); // Choose a random number between 1 and 3.
+        }
+        else if (totalNumberSticks == 3)
+        {
+            return 2;
+        }
+        else if (totalNumberSticks == 2)
+        {
+            return 1;
+        }
+        else // totalNumberSticks == 1
+        {
+            return 1;
+        }
+    }
 
-                if (sticksOnTable <= 0)
-                {
-                    Console.WriteLine($"{player1.Name} wins!");
-                    break;
-                }
-
-                // Player 2's turn (either Player 2 or AI)
-                int sticksTakenByPlayer2 = player2.TakeSticks(sticksOnTable);
-                sticksOnTable -= sticksTakenByPlayer2;
-
-                if (sticksOnTable <= 0)
-                {
-                    Console.WriteLine($"{player2.Name} wins!");
-                    break;
-                }
-
-            } while (true);
-
-            Console.Write("Play again (1 = yes, 0 = no)? ");
-        } while (Console.ReadLine() == "1");
+    static void PlayAgain()
+    {
+        Console.Write("Do you want to play  again? [y/n] \n");
+        if (Console.ReadLine().Trim().ToLower() == "y")
+        {
+            Console.Clear();
+            Main(); // Restart the game.
+        }
+        else
+        {
+            Console.WriteLine("Thank you for playing!");
+        }
     }
 }
+
 
 
 
