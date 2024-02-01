@@ -11,7 +11,6 @@ class GameOfSticks
 
         while (totalNumberSticks > 0)
         {
-            Console.Clear();
             Console.WriteLine($"\nThere are {totalNumberSticks} sticks on the board.\n");
 
             if (DetermineTurn(numberOfTurns))
